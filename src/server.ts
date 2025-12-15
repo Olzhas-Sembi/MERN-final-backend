@@ -20,7 +20,6 @@ async function startServer() {
   const app = express()
   const httpServer = createServer(app)
 
-  // Connect to MongoDB
   try {
     await mongoose.connect(process.env.MONGO_URI || "mongodb://mongo:27017/dating-app")
     logger.info("Connected to MongoDB")
@@ -29,10 +28,8 @@ async function startServer() {
     process.exit(1)
   }
 
-  // Create GraphQL schema
   const schema = makeExecutableSchema({ typeDefs, resolvers })
 
-  // WebSocket server for subscriptions
   const wsServer = new WebSocketServer({
     server: httpServer,
     path: "/graphql",
@@ -57,7 +54,6 @@ async function startServer() {
     wsServer,
   )
 
-  // Apollo Server
   const server = new ApolloServer({
     schema,
     plugins: [
@@ -113,7 +109,6 @@ async function startServer() {
     }),
   )
 
-  // Health check endpoint
   app.get("/health", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() })
   })
