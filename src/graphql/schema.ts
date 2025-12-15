@@ -164,6 +164,41 @@ export const typeDefs = `#graphql
     hasMore: Boolean!
   }
 
+  type OnlineStatus {
+    userId: ID!
+    online: Boolean!
+  }
+
+  type AdminStats {
+    totalUsers: Int!
+    totalProfiles: Int!
+    totalPosts: Int!
+    totalMatches: Int!
+    totalMessages: Int!
+    usersByRole: [UserRoleCount!]!
+    likesByUser: [UserLikeStats!]!
+    postsByUser: [UserPostStats!]!
+  }
+
+  type UserRoleCount {
+    role: String!
+    count: Int!
+  }
+
+  type UserLikeStats {
+    userId: ID!
+    username: String!
+    likesGiven: Int!
+    likesReceived: Int!
+  }
+
+  type UserPostStats {
+    userId: ID!
+    username: String!
+    postsCount: Int!
+    totalLikes: Int!
+  }
+
   type Query {
     me: User
     user(id: ID!): User
@@ -173,6 +208,7 @@ export const typeDefs = `#graphql
     messages(matchId: ID!, after: ID): MessageConnection!
     posts(limit: Int, offset: Int): [Post!]!
     post(id: ID!): Post
+    adminStats: AdminStats!
   }
 
   type Mutation {
@@ -191,10 +227,5 @@ export const typeDefs = `#graphql
   type Subscription {
     messageAdded(matchId: ID!): Message!
     userOnlineStatus(userId: ID!): OnlineStatus!
-  }
-
-  type OnlineStatus {
-    userId: ID!
-    online: Boolean!
   }
 `

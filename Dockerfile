@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
+# Install dependencies (including dev dependencies for tsx)
 RUN npm install --legacy-peer-deps
 
 # Copy source code

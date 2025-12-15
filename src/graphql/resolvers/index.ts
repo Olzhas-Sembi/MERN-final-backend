@@ -4,6 +4,7 @@ import { profileResolvers } from "./profile.resolvers"
 import { matchResolvers } from "./match.resolvers"
 import { messageResolvers } from "./message.resolvers"
 import { postResolvers } from "./post.resolvers"
+import { adminResolvers } from "./admin.resolvers"
 import { PubSub } from "graphql-subscriptions"
 
 export const pubsub = new PubSub()
@@ -29,6 +30,7 @@ export const resolvers = {
     ...matchResolvers.Query,
     ...messageResolvers.Query,
     ...postResolvers.Query,
+    ...adminResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,

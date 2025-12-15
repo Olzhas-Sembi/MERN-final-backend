@@ -7,14 +7,13 @@ import { Message } from "../models/Message"
 import { Post } from "../models/Post"
 import { logger } from "../lib/logger"
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/dating-app"
+const MONGO_URI = process.env.MONGO_URI || (process.env.NODE_ENV === "production" ? "mongodb://mongo:27017/dating-app" : "mongodb://localhost:27017/dating-app")
 
 async function seed() {
   try {
     await mongoose.connect(MONGO_URI)
     logger.info("Connected to MongoDB")
 
-    // Clear existing data
     await User.deleteMany({})
     await Profile.deleteMany({})
     await Match.deleteMany({})
@@ -22,34 +21,40 @@ async function seed() {
     await Post.deleteMany({})
     logger.info("Cleared existing data")
 
-    // Create users
     const password = await bcrypt.hash("password123", 10)
 
     const users = await User.create([
       {
-        username: "alice",
-        email: "alice@example.com",
+        username: "olzhas",
+        email: "olzhas@example.com",
+        passwordHash: password,
+        roles: ["admin", "user"],
+        isVerified: true,
+      },
+      {
+        username: "askhat",
+        email: "askhat@example.com",
         passwordHash: password,
         roles: ["user"],
         isVerified: true,
       },
       {
-        username: "bob",
-        email: "bob@example.com",
+        username: "tashmit",
+        email: "tashmit@example.com",
         passwordHash: password,
         roles: ["user"],
         isVerified: true,
       },
       {
-        username: "charlie",
-        email: "charlie@example.com",
+        username: "yelzhan",
+        email: "yelzhan@example.com",
         passwordHash: password,
         roles: ["user"],
         isVerified: true,
       },
       {
-        username: "diana",
-        email: "diana@example.com",
+        username: "tima",
+        email: "tima@example.com",
         passwordHash: password,
         roles: ["user"],
         isVerified: true,
@@ -58,53 +63,61 @@ async function seed() {
 
     logger.info(`Created ${users.length} users`)
 
-    // Create profiles
     const profiles = await Profile.create([
       {
         userId: users[0]._id,
-        displayName: "Alice",
-        birthDate: new Date("1995-05-15"),
-        gender: "female",
-        bio: "Love traveling and photography",
-        photos: ["/diverse-woman-smiling.png"],
-        location: { lat: 40.7128, lng: -74.006, city: "New York" },
+        displayName: "Olzhas",
+        birthDate: new Date("2004-07-03"),
+        gender: "male",
+        bio: "самый горячий",
+        photos: ["https://4l0del5xod.ufs.sh/f/2yJTA4VqesICHLnQx2XsDKuiVcBjLhdHTGU2ZqymX8Nek0fz"],
+        location: { lat: 43.2220, lng: 76.8512, city: "Алматы" },
         lookingFor: ["relationship", "friendship"],
       },
       {
         userId: users[1]._id,
-        displayName: "Bob",
-        birthDate: new Date("1992-08-22"),
-        gender: "male",
-        bio: "Software engineer who loves hiking",
-        photos: ["/man-outdoor.jpg"],
-        location: { lat: 40.7128, lng: -74.006, city: "New York" },
-        lookingFor: ["relationship"],
+        displayName: "Askhat",
+        birthDate: new Date("2004-05-14"),
+        gender: "female",
+        bio: "самая горячая",
+        photos: ["https://4l0del5xod.ufs.sh/f/2yJTA4VqesICDhIfD9yMWRvidbhoe6OFCcmfEBl9L4QAGVTj"],
+        location: { lat: 43.2220, lng: 76.8512, city: "Алматы" },
+        lookingFor: ["relationship", "friendship"],
       },
       {
         userId: users[2]._id,
-        displayName: "Charlie",
-        birthDate: new Date("1998-03-10"),
-        gender: "male",
-        bio: "Musician and coffee enthusiast",
-        photos: ["/man-playing-guitar.png"],
-        location: { lat: 34.0522, lng: -118.2437, city: "Los Angeles" },
-        lookingFor: ["friendship", "casual"],
+        displayName: "Tashmit",
+        birthDate: new Date("2005-03-31"),
+        gender: "female",
+        bio: "ищу папика",
+        photos: ["https://4l0del5xod.ufs.sh/f/2yJTA4VqesICyMKYghp2MhUIlZbKjSO34mtCdTzXqYnNfogQ"],
+        location: { lat: 43.2220, lng: 76.8512, city: "Алматы" },
+        lookingFor: ["relationship"],
       },
       {
         userId: users[3]._id,
-        displayName: "Diana",
-        birthDate: new Date("1996-11-30"),
-        gender: "female",
-        bio: "Artist and yoga instructor",
-        photos: ["/woman-doing-yoga.png"],
-        location: { lat: 34.0522, lng: -118.2437, city: "Los Angeles" },
-        lookingFor: ["relationship"],
+        displayName: "Yelzhan",
+        birthDate: new Date("2004-11-30"),
+        gender: "male",
+        bio: "ненавижу месси",
+        photos: ["https://4l0del5xod.ufs.sh/f/2yJTA4VqesICSRZsIAPCipXRz9kwKafyEWM4Dr5Ztb0mlg3Y"],
+        location: { lat: 43.2183, lng: 76.8395, city: "Алатау" },
+        lookingFor: ["friendship", "casual"],
+      },
+      {
+        userId: users[4]._id,
+        displayName: "Tima",
+        birthDate: new Date("2007-07-07"),
+        gender: "male",
+        bio: "люблю кодить",
+        photos: ["https://4l0del5xod.ufs.sh/f/2yJTA4VqesIC2TSTSqVqesICbx6UXkivufZ4opAydlOH9GP1"],
+        location: { lat: 43.2183, lng: 76.8395, city: "Алатау" },
+        lookingFor: ["friendship"],
       },
     ])
 
     logger.info(`Created ${profiles.length} profiles`)
 
-    // Create a match between Alice and Bob
     const match = await Match.create({
       participants: [users[0]._id, users[1]._id],
       status: "matched",
@@ -114,14 +127,13 @@ async function seed() {
       ],
     })
 
-    logger.info("Created match between Alice and Bob")
+    logger.info("Created match between Olzhas and Askhat")
 
-    // Create messages
     await Message.create([
       {
         matchId: match._id,
         senderId: users[0]._id,
-        text: "Hi Bob! How are you?",
+        text: "Привет Askhat! Как дела?",
         attachments: [],
         sentAt: new Date(Date.now() - 3600000),
         readBy: [users[0]._id, users[1]._id],
@@ -129,7 +141,7 @@ async function seed() {
       {
         matchId: match._id,
         senderId: users[1]._id,
-        text: "Hey Alice! I'm doing great, thanks! How about you?",
+        text: "Привет Olzhas! Отлично, спасибо! А у тебя?",
         attachments: [],
         sentAt: new Date(Date.now() - 3000000),
         readBy: [users[0]._id, users[1]._id],
@@ -137,7 +149,7 @@ async function seed() {
       {
         matchId: match._id,
         senderId: users[0]._id,
-        text: "I'm good! Would you like to grab coffee sometime?",
+        text: "Тоже хорошо! Может, сходим куда-нибудь?",
         attachments: [],
         sentAt: new Date(Date.now() - 1800000),
         readBy: [users[0]._id],
@@ -146,22 +158,29 @@ async function seed() {
 
     logger.info("Created messages")
 
-    // Create posts
     await Post.create([
       {
         authorId: users[0]._id,
-        content: "Just got back from an amazing trip to Iceland! The northern lights were incredible.",
-        images: ["/northern-lights-iceland.png"],
-        likesCount: 15,
-        commentsCount: 3,
+        content: "Готов встретиться с самой горячей! 🔥",
+        images: [],
+        likesCount: 5,
+        commentsCount: 2,
         visibility: "public",
       },
       {
-        authorId: users[2]._id,
-        content: "New song out now! Check it out on my profile.",
+        authorId: users[4]._id,
+        content: "Только что закончил новый проект по кодингу! 💻",
         images: [],
-        likesCount: 8,
-        commentsCount: 2,
+        likesCount: 3,
+        commentsCount: 1,
+        visibility: "public",
+      },
+      {
+        authorId: users[3]._id,
+        content: "Месси - переоценен! Роналду лучше! ⚽",
+        images: [],
+        likesCount: 2,
+        commentsCount: 5,
         visibility: "public",
       },
     ])
@@ -169,7 +188,8 @@ async function seed() {
     logger.info("Created posts")
 
     logger.info("Seed completed successfully!")
-    logger.info("Test credentials: alice@example.com / password123")
+    logger.info("Admin credentials: olzhas@example.com / password123")
+    logger.info("Test user credentials: askhat@example.com / password123")
 
     await mongoose.connection.close()
   } catch (error) {

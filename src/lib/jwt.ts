@@ -33,3 +33,13 @@ export function requireAuth(context: any): JWTPayload {
   }
   return context.user
 }
+
+export function requireAdmin(context: any): JWTPayload {
+  const user = requireAuth(context)
+  if (!user.roles || !user.roles.includes("admin")) {
+    throw new GraphQLError("Admin access required", {
+      extensions: { code: "FORBIDDEN" },
+    })
+  }
+  return user
+}
