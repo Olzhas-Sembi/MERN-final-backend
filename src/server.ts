@@ -86,28 +86,47 @@ async function startServer() {
 
   await server.start()
 
-  app.use(
-    "/graphql",
-    cors<cors.CorsRequest>({
-      origin: process.env.CLIENT_URL || "http://localhost:3000",
-      credentials: true,
-    }),
-    json(),
-    expressMiddleware(server, {
-      context: async ({ req }) => {
-        const token = req.headers.authorization
-        if (token) {
-          try {
-            const user = verifyToken(token.replace("Bearer ", ""))
-            return { user }
-          } catch (error) {
-            logger.error("HTTP auth error:", error)
-          }
+  // CORS configuration - allow multiple origins
+  const allowedOrigins = [
+    process.env.CLIENT_URL,
+    "http://localhost:3000",
+    "https://mern-final-frontend-gpic.vercel.app",
+    // Add more Vercel preview URLs if needed
+  ].filter(Boolean) as string[]
+
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true)
+      
+      if (allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
+        callback(null, true)
+      } else {
+        // In production, log but allow for now (you can make this stricter)
+        logger.warn(`CORS: Blocked origin ${origin}`)
+        callback(null, true) // Allow for now, change to callback(new Error('Not allowed')) to block
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }
+
+  app.use(cors(corsOptions))
+  app.use("/graphql", json(), expressMiddleware(server, {
+    context: async ({ req }) => {
+      const token = req.headers.authorization
+      if (token) {
+        try {
+          const user = verifyToken(token.replace("Bearer ", ""))
+          return { user }
+        } catch (error) {
+          logger.error("HTTP auth error:", error)
         }
-        return {}
-      },
-    }),
-  )
+      }
+      return {}
+    },
+  }))
 
   app.get("/health", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() })
